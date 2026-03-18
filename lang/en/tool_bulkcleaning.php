@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['docs_pagenotfound'] = 'Page not found';
+$string['docs_title'] = 'Documentation';
 $string['enrolcleaning_case_deletedusers'] = 'Deleted users';
 $string['enrolcleaning_case_expiredenrols'] = 'Expired enrollments';
 $string['enrolcleaning_case_suspendedusers'] = 'Suspended users in the platform';
@@ -40,7 +42,17 @@ $string['enrolcleaning_userfilter_nogrades'] = 'No grades in the course';
 $string['enrolcleaning_userfilter_none'] = 'No restriction';
 $string['enrolcleaning_userfilter_notcompleted'] = 'Not completed the course';
 $string['pluginname'] = 'Bulk cleaning';
-$string['privacy:metadata'] = 'The Bulk cleaning plugin doesn\'t store any personal data.';
+$string['privacy:metadata:enrol'] = 'Records of enrolment cleaning actions performed on users.';
+$string['privacy:metadata:enrol:courseid'] = 'The ID of the course from which the user was unenrolled.';
+$string['privacy:metadata:enrol:details'] = 'Additional details about the cleaning action (case, enrol plugin, role, dates).';
+$string['privacy:metadata:enrol:timecreated'] = 'The time the cleaning action was performed.';
+$string['privacy:metadata:enrol:userid'] = 'The ID of the user whose enrolment was cleaned.';
+$string['privacy:metadata:users'] = 'Records of user cleaning actions (suspend or delete).';
+$string['privacy:metadata:users:details'] = 'Additional details about the cleaning action (case, days, action taken).';
+$string['privacy:metadata:users:timecreated'] = 'The time the cleaning action was performed.';
+$string['privacy:metadata:users:userid'] = 'The ID of the user who was suspended or deleted.';
+$string['privacy:path:enrolcleaning'] = 'Enrolment cleaning logs';
+$string['privacy:path:userscleaning'] = 'User cleaning logs';
 $string['tab_enrolcleaning'] = 'Enrolments cleaning';
 $string['tab_userscleaning'] = 'Users cleaning';
 $string['task_enrolcleaning'] = 'Enrollments cleaning task';

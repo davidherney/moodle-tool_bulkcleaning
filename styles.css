@@ -1,0 +1,27 @@
+/* Docs */
+.tool-bulkcleaning-docs table {
+    border-collapse: collapse;
+    margin-bottom: 16px;
+
+    thead {
+        background-color: #f8f9fa;
+
+        th {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: left;
+        }
+    }
+
+    td {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+    }
+}
+
+.tool-bulkcleaning-docs pre {
+    background-color: var(--gray);
+    padding: 10px 5px;
+    color: var(--white);
+    display: block;
+}

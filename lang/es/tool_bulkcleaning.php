@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['docs_pagenotfound'] = 'Página no encontrada';
+$string['docs_title'] = 'Documentación';
 $string['enrolcleaning_case_deletedusers'] = 'Usuarios eliminados';
 $string['enrolcleaning_case_expiredenrols'] = 'Matrículas expiradas';
 $string['enrolcleaning_case_suspendedusers'] = 'Usuarios suspendidos en la plataforma';
@@ -40,7 +42,17 @@ $string['enrolcleaning_userfilter_nogrades'] = 'Sin calificaciones en el curso';
 $string['enrolcleaning_userfilter_none'] = 'Sin restricción';
 $string['enrolcleaning_userfilter_notcompleted'] = 'No completó el curso';
 $string['pluginname'] = 'Limpieza masiva';
-$string['privacy:metadata'] = 'El complemento de limpieza masiva no almacena ningún dato personal.';
+$string['privacy:metadata:enrol'] = 'Registros de acciones de limpieza de matrículas realizadas sobre usuarios.';
+$string['privacy:metadata:enrol:courseid'] = 'El ID del curso del cual se desmatriculó al usuario.';
+$string['privacy:metadata:enrol:details'] = 'Detalles adicionales de la acción de limpieza (caso, plugin de matrícula, rol, fechas).';
+$string['privacy:metadata:enrol:timecreated'] = 'La fecha en que se realizó la acción de limpieza.';
+$string['privacy:metadata:enrol:userid'] = 'El ID del usuario cuya matrícula fue limpiada.';
+$string['privacy:metadata:users'] = 'Registros de acciones de limpieza de usuarios (suspender o eliminar).';
+$string['privacy:metadata:users:details'] = 'Detalles adicionales de la acción de limpieza (caso, días, acción realizada).';
+$string['privacy:metadata:users:timecreated'] = 'La fecha en que se realizó la acción de limpieza.';
+$string['privacy:metadata:users:userid'] = 'El ID del usuario que fue suspendido o eliminado.';
+$string['privacy:path:enrolcleaning'] = 'Registros de limpieza de matrículas';
+$string['privacy:path:userscleaning'] = 'Registros de limpieza de usuarios';
 $string['tab_enrolcleaning'] = 'Limpieza de matrículas';
 $string['tab_userscleaning'] = 'Limpieza de usuarios';
 $string['task_enrolcleaning'] = 'Tarea de limpieza de matrículas';

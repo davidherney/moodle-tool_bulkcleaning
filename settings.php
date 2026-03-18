@@ -22,21 +22,21 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use tool_bulkcleaning\local\cleaners\enrol AS cleaner_enrol;
-use tool_bulkcleaning\local\cleaners\users AS cleaner_users;
+use tool_bulkcleaning\local\cleaners\enrol as cleaner_enrol;
+use tool_bulkcleaning\local\cleaners\users as cleaner_users;
 
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-
     $settings = new theme_boost_admin_settingspage_tabs('tool_bulkcleaning', new lang_string('pluginname', 'tool_bulkcleaning'));
     $ADMIN->add('tools', $settings);
 
     if ($ADMIN->fulltree) {
-
         // Enrolments cleaning tab.
-        $page = new admin_settingpage('tool_bulkcleaning_enrol',
-            new lang_string('tab_enrolcleaning', 'tool_bulkcleaning'));
+        $page = new admin_settingpage(
+            'tool_bulkcleaning_enrol',
+            new lang_string('tab_enrolcleaning', 'tool_bulkcleaning')
+        );
 
         $page->add(new admin_setting_configcheckbox(
             'tool_bulkcleaning/enrolcleaning_enabled',
@@ -77,8 +77,10 @@ if ($hassiteconfig) {
         $settings->add($page);
 
         // Users cleaning tab.
-        $page = new admin_settingpage('tool_bulkcleaning_users',
-            new lang_string('tab_userscleaning', 'tool_bulkcleaning'));
+        $page = new admin_settingpage(
+            'tool_bulkcleaning_users',
+            new lang_string('tab_userscleaning', 'tool_bulkcleaning')
+        );
 
         $page->add(new admin_setting_configcheckbox(
             'tool_bulkcleaning/userscleaning_enabled',

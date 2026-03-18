@@ -98,11 +98,15 @@ class users {
         $action = get_config('tool_bulkcleaning', 'userscleaning_action');
 
         foreach ($users as $user) {
+            $userrecord = $DB->get_record('user', ['id' => $user->id]);
+            if (!$userrecord) {
+                continue;
+            }
+
             if ($action === self::ACTION_DELETE) {
-                delete_user($DB->get_record('user', ['id' => $user->id]));
+                delete_user($userrecord);
                 $actionlabel = 'Deleted';
             } else {
-                $userrecord = $DB->get_record('user', ['id' => $user->id]);
                 $userrecord->suspended = 1;
                 \core\session\manager::destroy_user_sessions($userrecord->id);
                 user_update_user($userrecord, false);
