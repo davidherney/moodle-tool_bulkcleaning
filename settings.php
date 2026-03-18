@@ -120,4 +120,19 @@ if ($hassiteconfig) {
 
         $settings->add($page);
     }
+
+    // Register report pages under Site Administration > Reports.
+    $ADMIN->add('reports', new admin_externalpage(
+        'tool_bulkcleaning_report_enrol',
+        new lang_string('report_enrol_title', 'tool_bulkcleaning'),
+        new moodle_url('/admin/tool/bulkcleaning/report_enrol.php'),
+        'moodle/site:viewreports'
+    ));
+
+    $ADMIN->add('reports', new admin_externalpage(
+        'tool_bulkcleaning_report_users',
+        new lang_string('report_users_title', 'tool_bulkcleaning'),
+        new moodle_url('/admin/tool/bulkcleaning/report_users.php'),
+        'moodle/site:viewreports'
+    ));
 }

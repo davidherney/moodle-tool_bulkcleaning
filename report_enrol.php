@@ -15,18 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for Bulk cleaning
+ * Enrol cleaning log report page.
  *
  * @package    tool_bulkcleaning
  * @copyright  2026 David Herney @ BambuCo
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-$plugin->component = 'tool_bulkcleaning';
-$plugin->release = '1.0.01';
-$plugin->version = 2026031701;
-$plugin->requires = 2024100700;
-$plugin->supported = [405, 501];
-$plugin->maturity = MATURITY_STABLE;
+admin_externalpage_setup('tool_bulkcleaning_report_enrol');
+
+echo $OUTPUT->header();
+
+echo $OUTPUT->heading(get_string('report_enrol_title', 'tool_bulkcleaning'));
+
+$report = \core_reportbuilder\system_report_factory::create(
+    \tool_bulkcleaning\reportbuilder\local\systemreports\enrol_cleaning_report::class,
+    context_system::instance()
+);
+echo $report->output();
+
+echo $OUTPUT->footer();
