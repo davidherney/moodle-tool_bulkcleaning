@@ -24,9 +24,14 @@ namespace tool_bulkcleaning\local\cleaners;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class users {
-
     /** @var string Cleaning case: no login since X days. */
     public const CASE_NOLOGIN = 'nologin';
+
+    /** @var string Action: suspend the user. */
+    public const ACTION_SUSPEND = 'suspend';
+
+    /** @var string Action: delete the user. */
+    public const ACTION_DELETE = 'delete';
 
     /**
      * Save a cleaning log record.
@@ -62,7 +67,7 @@ class users {
 
         $sql = "SELECT u.id, u.lastaccess
                 FROM {user} u
-                 WHERE u.deleted = 0 AND u.suspended = 0
+                 WHERE u.deleted = 0 AND u.suspended = 0 AND u.username <> 'guest'
                        AND (u.lastaccess > 0 AND u.lastaccess < :threshold
                             OR u.lastaccess = 0 AND u.timecreated < :threshold2)";
 
@@ -90,18 +95,27 @@ class users {
             return;
         }
 
-        $now = time();
+        $action = get_config('tool_bulkcleaning', 'userscleaning_action');
 
         foreach ($users as $user) {
-            $user->suspended = 1;
-            $DB->update_record('user', $user);
+            if ($action === self::ACTION_DELETE) {
+                delete_user($DB->get_record('user', ['id' => $user->id]));
+                $actionlabel = 'Deleted';
+            } else {
+                $userrecord = $DB->get_record('user', ['id' => $user->id]);
+                $userrecord->suspended = 1;
+                \core\session\manager::destroy_user_sessions($userrecord->id);
+                user_update_user($userrecord, false);
+                $actionlabel = 'Suspended';
+            }
 
             self::save_log($user->id, self::CASE_NOLOGIN, [
                 'days' => $days,
+                'action' => $action,
                 'lastaccess' => (int) $user->lastaccess,
             ]);
 
-            mtrace("  Suspended user {$user->id} (no login since {$days} days).");
+            mtrace("  {$actionlabel} user {$user->id} (no login since {$days} days).");
         }
     }
 }

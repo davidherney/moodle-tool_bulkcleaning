@@ -36,7 +36,7 @@ $allcases = implode(', ', [
     users::CASE_NOLOGIN,
 ]);
 
-list($options, $unrecognized) = cli_get_params(
+[$options, $unrecognized] = cli_get_params(
     [
         'help' => false,
         'enrol' => false,

@@ -57,6 +57,23 @@ if ($hassiteconfig) {
             ]
         ));
 
+        $page->add(new admin_setting_configselect(
+            'tool_bulkcleaning/enrolcleaning_userfilter',
+            new lang_string('enrolcleaning_userfilter', 'tool_bulkcleaning'),
+            new lang_string('enrolcleaning_userfilter_desc', 'tool_bulkcleaning'),
+            cleaner_enrol::USERFILTER_NONE,
+            [
+                cleaner_enrol::USERFILTER_NONE => new lang_string('enrolcleaning_userfilter_none', 'tool_bulkcleaning'),
+                cleaner_enrol::USERFILTER_NOGRADES => new lang_string('enrolcleaning_userfilter_nogrades', 'tool_bulkcleaning'),
+                cleaner_enrol::USERFILTER_NOACCESS => new lang_string('enrolcleaning_userfilter_noaccess', 'tool_bulkcleaning'),
+                cleaner_enrol::USERFILTER_COMPLETED => new lang_string('enrolcleaning_userfilter_completed', 'tool_bulkcleaning'),
+                cleaner_enrol::USERFILTER_NOTCOMPLETED => new lang_string(
+                    'enrolcleaning_userfilter_notcompleted',
+                    'tool_bulkcleaning'
+                ),
+            ]
+        ));
+
         $settings->add($page);
 
         // Users cleaning tab.
@@ -77,6 +94,17 @@ if ($hassiteconfig) {
             [],
             [
                 cleaner_users::CASE_NOLOGIN => new lang_string('userscleaning_case_nologin', 'tool_bulkcleaning'),
+            ]
+        ));
+
+        $page->add(new admin_setting_configselect(
+            'tool_bulkcleaning/userscleaning_action',
+            new lang_string('userscleaning_action', 'tool_bulkcleaning'),
+            new lang_string('userscleaning_action_desc', 'tool_bulkcleaning'),
+            cleaner_users::ACTION_SUSPEND,
+            [
+                cleaner_users::ACTION_SUSPEND => new lang_string('userscleaning_action_suspend', 'tool_bulkcleaning'),
+                cleaner_users::ACTION_DELETE => new lang_string('userscleaning_action_delete', 'tool_bulkcleaning'),
             ]
         ));
 

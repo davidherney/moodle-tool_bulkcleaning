@@ -26,8 +26,6 @@ namespace tool_bulkcleaning\task;
 
 use tool_bulkcleaning\local\cleaners\enrol;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Scheduled task for enrolment cleaning.
  *
@@ -36,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_cleaning extends \core\task\scheduled_task {
-
     /**
      * Get the name of the task.
      *

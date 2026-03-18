@@ -28,7 +28,6 @@ use tool_bulkcleaning\local\cleaners\enrol;
  * @covers     \tool_bulkcleaning\local\cleaners\enrol
  */
 final class enrol_cleaner_test extends \advanced_testcase {
-
     /**
      * Test set up.
      */

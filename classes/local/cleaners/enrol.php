@@ -24,7 +24,6 @@ namespace tool_bulkcleaning\local\cleaners;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol {
-
     /** @var string Cleaning case: deleted users. */
     public const CASE_DELETEDUSERS = 'deletedusers';
 
@@ -33,6 +32,56 @@ class enrol {
 
     /** @var string Cleaning case: expired enrollments. */
     public const CASE_EXPIREDENROLS = 'expiredenrols';
+
+    /** @var string User filter: no restriction. */
+    public const USERFILTER_NONE = 'none';
+
+    /** @var string User filter: no grades in the course. */
+    public const USERFILTER_NOGRADES = 'nogrades';
+
+    /** @var string User filter: never accessed the course. */
+    public const USERFILTER_NOACCESS = 'noaccess';
+
+    /** @var string User filter: completed the course. */
+    public const USERFILTER_COMPLETED = 'completed';
+
+    /** @var string User filter: not completed the course. */
+    public const USERFILTER_NOTCOMPLETED = 'notcompleted';
+
+    /**
+     * Get SQL fragments for the user filter setting.
+     *
+     * @return array With keys 'joins' and 'where'.
+     */
+    private static function get_userfilter_sql(): array {
+        $filter = get_config('tool_bulkcleaning', 'enrolcleaning_userfilter');
+        $joins = '';
+        $where = '';
+
+        switch ($filter) {
+            case self::USERFILTER_NOGRADES:
+                $joins = "LEFT JOIN {grade_items} gi ON gi.courseid = e.courseid AND gi.itemtype <> 'course'
+                          LEFT JOIN {grade_grades} gg ON gg.itemid = gi.id AND gg.userid = ue.userid
+                                                         AND gg.finalgrade IS NOT NULL";
+                $where = "AND gg.id IS NULL";
+                break;
+            case self::USERFILTER_NOACCESS:
+                $joins = "LEFT JOIN {user_lastaccess} ul ON ul.userid = ue.userid AND ul.courseid = e.courseid";
+                $where = "AND ul.id IS NULL";
+                break;
+            case self::USERFILTER_COMPLETED:
+                $joins = "INNER JOIN {course_completions} cc ON cc.userid = ue.userid
+                            AND cc.course = e.courseid AND cc.timecompleted IS NOT NULL";
+                break;
+            case self::USERFILTER_NOTCOMPLETED:
+                $joins = "LEFT JOIN {course_completions} cc ON cc.userid = ue.userid
+                            AND cc.course = e.courseid AND cc.timecompleted IS NOT NULL";
+                $where = "AND cc.id IS NULL";
+                break;
+        }
+
+        return ['joins' => $joins, 'where' => $where];
+    }
 
     /**
      * Save a cleaning log record.
@@ -45,8 +94,15 @@ class enrol {
      * @param int $timestart
      * @param int $timeend
      */
-    public static function save_log(int $userid, int $courseid, string $case,
-            string $enrolplugin, ?int $roleid, int $timestart, int $timeend): void {
+    public static function save_log(
+        int $userid,
+        int $courseid,
+        string $case,
+        string $enrolplugin,
+        ?int $roleid,
+        int $timestart,
+        int $timeend
+    ): void {
         global $DB;
 
         $DB->insert_record('tool_bulkcleaning_enrol', (object) [
@@ -71,14 +127,17 @@ class enrol {
     public static function get_deleted_users_enrolments(): array {
         global $DB;
 
-        $sql = "SELECT ue.id AS ueid, ue.userid, e.id AS enrolid, e.enrol, e.courseid,
+        $userfilter = self::get_userfilter_sql();
+
+        $sql = "SELECT DISTINCT ue.id AS ueid, ue.userid, e.id AS enrolid, e.enrol, e.courseid,
                        ue.timestart, ue.timeend, ra.roleid
                 FROM {user_enrolments} ue
                 INNER JOIN {enrol} e ON e.id = ue.enrolid
                 INNER JOIN {user} u ON u.id = ue.userid
                 LEFT JOIN {role_assignments} ra ON ra.userid = ue.userid
                        AND ra.component = " . $DB->sql_concat("'enrol_'", 'e.enrol') . " AND ra.itemid = e.id
-                 WHERE u.deleted = 1";
+                {$userfilter['joins']}
+                 WHERE u.deleted = 1 {$userfilter['where']}";
 
         return $DB->get_records_sql($sql);
     }
@@ -136,14 +195,17 @@ class enrol {
     public static function get_suspended_users_enrolments(): array {
         global $DB;
 
-        $sql = "SELECT ue.id AS ueid, ue.userid, e.id AS enrolid, e.enrol, e.courseid,
+        $userfilter = self::get_userfilter_sql();
+
+        $sql = "SELECT DISTINCT ue.id AS ueid, ue.userid, e.id AS enrolid, e.enrol, e.courseid,
                        ue.timestart, ue.timeend, ra.roleid
                 FROM {user_enrolments} ue
                 INNER JOIN {enrol} e ON e.id = ue.enrolid
                 INNER JOIN {user} u ON u.id = ue.userid
                 LEFT JOIN {role_assignments} ra ON ra.userid = ue.userid
                        AND ra.component = " . $DB->sql_concat("'enrol_'", 'e.enrol') . " AND ra.itemid = e.id
-                 WHERE u.suspended = 1 AND u.deleted = 0";
+                {$userfilter['joins']}
+                 WHERE u.suspended = 1 AND u.deleted = 0 {$userfilter['where']}";
 
         return $DB->get_records_sql($sql);
     }
@@ -201,15 +263,18 @@ class enrol {
     public static function get_expired_enrolments(): array {
         global $DB;
 
-        $sql = "SELECT ue.id AS ueid, ue.userid, e.id AS enrolid, e.enrol, e.courseid,
+        $userfilter = self::get_userfilter_sql();
+
+        $sql = "SELECT DISTINCT ue.id AS ueid, ue.userid, e.id AS enrolid, e.enrol, e.courseid,
                        ue.timestart, ue.timeend, ra.roleid
                 FROM {user_enrolments} ue
                 INNER JOIN {enrol} e ON e.id = ue.enrolid
                 INNER JOIN {user} u ON u.id = ue.userid
                 LEFT JOIN {role_assignments} ra ON ra.userid = ue.userid
                        AND ra.component = " . $DB->sql_concat("'enrol_'", 'e.enrol') . " AND ra.itemid = e.id
+                {$userfilter['joins']}
                  WHERE ue.timeend > 0 AND ue.timeend < :now
-                       AND u.deleted = 0";
+                       AND u.deleted = 0 {$userfilter['where']}";
 
         return $DB->get_records_sql($sql, ['now' => time()]);
     }

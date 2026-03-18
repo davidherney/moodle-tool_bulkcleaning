@@ -26,8 +26,6 @@ namespace tool_bulkcleaning\task;
 
 use tool_bulkcleaning\local\cleaners\users;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Scheduled task for users cleaning.
  *
@@ -36,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class users_cleaning extends \core\task\scheduled_task {
-
     /**
      * Get the name of the task.
      *

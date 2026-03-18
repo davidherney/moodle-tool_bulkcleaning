@@ -28,7 +28,6 @@ use tool_bulkcleaning\local\cleaners\users;
  * @covers     \tool_bulkcleaning\local\cleaners\users
  */
 final class users_cleaner_test extends \advanced_testcase {
-
     /**
      * Test set up.
      */
