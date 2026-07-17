@@ -55,15 +55,24 @@ class enrol {
      */
     private static function get_userfilter_sql(): array {
         $filter = get_config('tool_bulkcleaning', 'enrolcleaning_userfilter');
+        if ($filter === false || $filter === '') {
+            $filter = self::USERFILTER_NONE;
+        }
+
         $joins = '';
         $where = '';
 
         switch ($filter) {
+            case self::USERFILTER_NONE:
+                break;
             case self::USERFILTER_NOGRADES:
-                $joins = "LEFT JOIN {grade_items} gi ON gi.courseid = e.courseid AND gi.itemtype <> 'course'
-                          LEFT JOIN {grade_grades} gg ON gg.itemid = gi.id AND gg.userid = ue.userid
-                                                         AND gg.finalgrade IS NOT NULL";
-                $where = "AND gg.id IS NULL";
+                $where = "AND NOT EXISTS (
+                              SELECT 1
+                                FROM {grade_items} gi
+                                JOIN {grade_grades} gg ON gg.itemid = gi.id
+                               WHERE gi.courseid = e.courseid AND gg.userid = ue.userid
+                                     AND gg.finalgrade IS NOT NULL
+                          )";
                 break;
             case self::USERFILTER_NOACCESS:
                 $joins = "LEFT JOIN {user_lastaccess} ul ON ul.userid = ue.userid AND ul.courseid = e.courseid";
@@ -78,6 +87,8 @@ class enrol {
                             AND cc.course = e.courseid AND cc.timecompleted IS NOT NULL";
                 $where = "AND cc.id IS NULL";
                 break;
+            default:
+                throw new \coding_exception('Invalid enrol cleaning user filter: ' . $filter);
         }
 
         return ['joins' => $joins, 'where' => $where];

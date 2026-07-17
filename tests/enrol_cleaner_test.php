@@ -144,6 +144,141 @@ final class enrol_cleaner_test extends \advanced_testcase {
     }
 
     /**
+     * Test that the no-grades filter only cleans users with no final grades in the course.
+     */
+    public function test_clean_suspended_users_nogrades_filter(): void {
+        global $DB;
+
+        set_config('enrolcleaning_userfilter', enrol::USERFILTER_NOGRADES, 'tool_bulkcleaning');
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $othercourse = $generator->create_course();
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $nogradesuser = $generator->create_user(['suspended' => 1]);
+        $gradeduser = $generator->create_user(['suspended' => 1]);
+        $coursegradeuser = $generator->create_user(['suspended' => 1]);
+        $othercoursegradeduser = $generator->create_user(['suspended' => 1]);
+
+        foreach ([$nogradesuser, $gradeduser, $coursegradeuser, $othercoursegradeduser] as $user) {
+            $generator->enrol_user($user->id, $course->id, $studentrole->id);
+        }
+
+        // Two items reproduce the reported regression: a grade in one item and no grade in another.
+        $gradeditem = $generator->create_grade_item(['courseid' => $course->id]);
+        $generator->create_grade_item(['courseid' => $course->id]);
+        $generator->create_grade_grade([
+            'itemid' => $gradeditem->id,
+            'userid' => $gradeduser->id,
+            'finalgrade' => 80,
+        ]);
+
+        // A manually overridden course total is also a grade that must be preserved.
+        $courseitem = \grade_item::fetch_course_item($course->id);
+        $generator->create_grade_grade([
+            'itemid' => $courseitem->id,
+            'userid' => $coursegradeuser->id,
+            'finalgrade' => 90,
+        ]);
+
+        // A grade from a different course must not affect this course's enrolment.
+        $othergradeitem = $generator->create_grade_item(['courseid' => $othercourse->id]);
+        $generator->create_grade_grade([
+            'itemid' => $othergradeitem->id,
+            'userid' => $othercoursegradeduser->id,
+            'finalgrade' => 70,
+        ]);
+
+        ob_start();
+        enrol::clean_suspended_users();
+        ob_end_clean();
+
+        $this->assertFalse($DB->record_exists('user_enrolments', ['userid' => $nogradesuser->id]));
+        $this->assertTrue($DB->record_exists('user_enrolments', ['userid' => $gradeduser->id]));
+        $this->assertTrue($DB->record_exists('user_enrolments', ['userid' => $coursegradeuser->id]));
+        $this->assertFalse($DB->record_exists('user_enrolments', ['userid' => $othercoursegradeduser->id]));
+        $this->assertEquals(2, $DB->count_records('tool_bulkcleaning_enrol'));
+    }
+
+    /**
+     * Test that an invalid filter cannot silently remove enrolments without restriction.
+     */
+    public function test_clean_suspended_users_rejects_invalid_filter(): void {
+        set_config('enrolcleaning_userfilter', 'invalid', 'tool_bulkcleaning');
+
+        $this->expectException(\coding_exception::class);
+        enrol::get_suspended_users_enrolments();
+    }
+
+    /**
+     * Test that the no-access filter only cleans users who never accessed the course.
+     */
+    public function test_clean_suspended_users_noaccess_filter(): void {
+        global $DB;
+
+        set_config('enrolcleaning_userfilter', enrol::USERFILTER_NOACCESS, 'tool_bulkcleaning');
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $neveraccesseduser = $generator->create_user(['suspended' => 1]);
+        $accesseduser = $generator->create_user(['suspended' => 1]);
+        $generator->enrol_user($neveraccesseduser->id, $course->id, $studentrole->id);
+        $generator->enrol_user($accesseduser->id, $course->id, $studentrole->id);
+        $DB->insert_record('user_lastaccess', (object) [
+            'userid' => $accesseduser->id,
+            'courseid' => $course->id,
+            'timeaccess' => time(),
+        ]);
+
+        ob_start();
+        enrol::clean_suspended_users();
+        ob_end_clean();
+
+        $this->assertFalse($DB->record_exists('user_enrolments', ['userid' => $neveraccesseduser->id]));
+        $this->assertTrue($DB->record_exists('user_enrolments', ['userid' => $accesseduser->id]));
+        $this->assertEquals(1, $DB->count_records('tool_bulkcleaning_enrol'));
+    }
+
+    /**
+     * Test the completed and not-completed filters select opposite enrolments.
+     */
+    public function test_clean_suspended_users_completion_filters(): void {
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $completeduser = $generator->create_user(['suspended' => 1]);
+        $notcompleteduser = $generator->create_user(['suspended' => 1]);
+        $generator->enrol_user($completeduser->id, $course->id, $studentrole->id);
+        $generator->enrol_user($notcompleteduser->id, $course->id, $studentrole->id);
+        $DB->insert_record('course_completions', (object) [
+            'userid' => $completeduser->id,
+            'course' => $course->id,
+            'timecompleted' => time(),
+        ]);
+
+        set_config('enrolcleaning_userfilter', enrol::USERFILTER_COMPLETED, 'tool_bulkcleaning');
+        ob_start();
+        enrol::clean_suspended_users();
+        ob_end_clean();
+
+        $this->assertFalse($DB->record_exists('user_enrolments', ['userid' => $completeduser->id]));
+        $this->assertTrue($DB->record_exists('user_enrolments', ['userid' => $notcompleteduser->id]));
+
+        $generator->enrol_user($completeduser->id, $course->id, $studentrole->id);
+        set_config('enrolcleaning_userfilter', enrol::USERFILTER_NOTCOMPLETED, 'tool_bulkcleaning');
+        ob_start();
+        enrol::clean_suspended_users();
+        ob_end_clean();
+
+        $this->assertTrue($DB->record_exists('user_enrolments', ['userid' => $completeduser->id]));
+        $this->assertFalse($DB->record_exists('user_enrolments', ['userid' => $notcompleteduser->id]));
+        $this->assertEquals(2, $DB->count_records('tool_bulkcleaning_enrol'));
+    }
+
+    /**
      * Test that expired enrolments are removed and logged.
      */
     public function test_clean_expired_enrolments_unenrols_and_logs(): void {

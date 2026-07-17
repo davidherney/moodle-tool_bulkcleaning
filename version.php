@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tool_bulkcleaning';
-$plugin->release = '1.0.01';
-$plugin->version = 2026031701;
+$plugin->release = '1.0.02';
+$plugin->version = 2026031702;
 $plugin->requires = 2024100700;
 $plugin->supported = [405, 501];
 $plugin->maturity = MATURITY_STABLE;

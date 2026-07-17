@@ -56,7 +56,7 @@ class users {
      * @return array
      */
     public static function get_nologin_users(): array {
-        global $DB;
+        global $CFG, $DB;
 
         $days = (int) get_config('tool_bulkcleaning', 'userscleaning_nologin_days');
         if ($days <= 0) {
@@ -64,14 +64,18 @@ class users {
         }
 
         $threshold = time() - ($days * DAYSECS);
+        $siteadmins = array_filter(array_map('intval', explode(',', $CFG->siteadmins)));
+        [$adminsql, $adminparams] = $DB->get_in_or_equal($siteadmins, SQL_PARAMS_NAMED, 'admin', false);
 
         $sql = "SELECT u.id, u.lastaccess
                 FROM {user} u
                  WHERE u.deleted = 0 AND u.suspended = 0 AND u.username <> 'guest'
+                       AND u.id {$adminsql}
                        AND (u.lastaccess > 0 AND u.lastaccess < :threshold
                             OR u.lastaccess = 0 AND u.timecreated < :threshold2)";
 
-        return $DB->get_records_sql($sql, ['threshold' => $threshold, 'threshold2' => $threshold]);
+        $params = array_merge($adminparams, ['threshold' => $threshold, 'threshold2' => $threshold]);
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
@@ -99,7 +103,7 @@ class users {
 
         foreach ($users as $user) {
             $userrecord = $DB->get_record('user', ['id' => $user->id]);
-            if (!$userrecord) {
+            if (!$userrecord || is_siteadmin($userrecord)) {
                 continue;
             }
 

@@ -181,6 +181,39 @@ final class users_cleaner_test extends \advanced_testcase {
     }
 
     /**
+     * Test that site administrators are never processed as inactive users.
+     */
+    public function test_clean_nologin_preserves_site_administrators(): void {
+        global $CFG, $DB;
+
+        set_config('userscleaning_nologin_days', 30, 'tool_bulkcleaning');
+
+        $generator = $this->getDataGenerator();
+        $admin1 = $generator->create_user();
+        $admin2 = $generator->create_user();
+        $regularuser = $generator->create_user();
+        set_config('siteadmins', $CFG->siteadmins . ',' . $admin1->id . ',' . $admin2->id);
+        foreach ([$admin1, $admin2, $regularuser] as $user) {
+            $DB->set_field('user', 'lastaccess', time() - (60 * DAYSECS), ['id' => $user->id]);
+        }
+
+        $users = users::get_nologin_users();
+        $this->assertCount(1, $users);
+        $this->assertArrayHasKey($regularuser->id, $users);
+
+        ob_start();
+        users::clean_nologin();
+        ob_end_clean();
+
+        $this->assertEquals(0, $DB->get_field('user', 'suspended', ['id' => $admin1->id]));
+        $this->assertEquals(0, $DB->get_field('user', 'suspended', ['id' => $admin2->id]));
+        $this->assertEquals(1, $DB->get_field('user', 'suspended', ['id' => $regularuser->id]));
+        $this->assertFalse($DB->record_exists('tool_bulkcleaning_users', ['userid' => $admin1->id]));
+        $this->assertFalse($DB->record_exists('tool_bulkcleaning_users', ['userid' => $admin2->id]));
+        $this->assertTrue($DB->record_exists('tool_bulkcleaning_users', ['userid' => $regularuser->id]));
+    }
+
+    /**
      * Test that nothing happens when days config is not set.
      */
     public function test_clean_nologin_no_days_configured(): void {
