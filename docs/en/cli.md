@@ -18,7 +18,8 @@ The plugin includes a command line script to preview what data would be cleaned,
 | `--all`, `-a` | Shows data for all cleanings |
 | `--enrol`, `-e` | Shows only enrolment cleaning data |
 | `--users`, `-u` | Shows only user cleaning data |
-| `--case=CASE`, `-s` | Filters by a specific case (e.g.: `deletedusers`, `suspendedusers`, `expiredenrols`, `nologin`) |
+| `--oauth2`, `-o` | Shows only oauth2 cleaning data |
+| `--case=CASE`, `-s` | Filters by a specific case (e.g.: `deletedusers`, `suspendedusers`, `expiredenrols`, `nologin`, `oauthdeletedusers`, `oauthsuspendedusers`, `oauthemailnotmatch`) |
 | `--csv`, `-c` | Exports results in CSV format instead of showing counts |
 
 ## Examples

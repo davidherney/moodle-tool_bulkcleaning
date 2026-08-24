@@ -18,7 +18,8 @@ El plugin incluye un comando de línea para previsualizar qué datos serían lim
 | `--all`, `-a` | Muestra datos de todas las limpiezas |
 | `--enrol`, `-e` | Muestra solo datos de limpieza de matrículas |
 | `--users`, `-u` | Muestra solo datos de limpieza de usuarios |
-| `--case=CASO`, `-s` | Filtra por un caso específico (ej: `deletedusers`, `suspendedusers`, `expiredenrols`, `nologin`) |
+| `--oauth2`, `-o` | Muestra solo datos de limpieza de OAuth2 |
+| `--case=CASO`, `-s` | Filtra por un caso específico (ej: `deletedusers`, `suspendedusers`, `expiredenrols`, `nologin`, `oauthdeletedusers`, `oauthsuspendedusers`, `oauthemailnotmatch`) |
 | `--csv`, `-c` | Exporta los resultados en formato CSV en vez de mostrar conteos |
 
 ## Ejemplos
