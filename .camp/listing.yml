@@ -14,7 +14,7 @@ screenshots:
   - path: .camp/screenshots/bulkcleaning_report.png
     caption: The tool provides a report for each cleaning operation.
   - path: .camp/screenshots/bulkcleaning_cli.png
-    caption: The tool provides a CLI command to analyze data before cleaning and run the cleaning operations.
+    caption: The tool provides a CLI command to analyze or export data before cleaning.
 links:
   docs: https://github.com/davidherney/moodle-tool_bulkcleaning/tree/main/docs
   issues: https://github.com/davidherney/moodle-tool_bulkcleaning/issues

@@ -45,6 +45,7 @@ $allcases = implode(', ', [
         'help' => false,
         'enrol' => false,
         'users' => false,
+        'oauth2' => false,
         'all' => false,
         'csv' => false,
         'case' => '',
@@ -53,6 +54,7 @@ $allcases = implode(', ', [
         'h' => 'help',
         'e' => 'enrol',
         'u' => 'users',
+        'o' => 'oauth2',
         'a' => 'all',
         'c' => 'csv',
         's' => 'case',
@@ -64,7 +66,9 @@ if ($unrecognized) {
     cli_error(get_string('cliunknowoption', 'admin', $unrecognized), 2);
 }
 
-if ($options['help'] || (!$options['enrol'] && !$options['users'] && !$options['all'] && empty($options['case']))) {
+if (
+    $options['help'] ||
+    (!$options['enrol'] && !$options['users'] && !$options['oauth2'] && !$options['all'] && empty($options['case']))) {
     $help = "Check what would be cleaned by bulk cleaning tasks.
 
 Options:
