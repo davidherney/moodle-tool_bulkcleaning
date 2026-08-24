@@ -68,7 +68,8 @@ if ($unrecognized) {
 
 if (
     $options['help'] ||
-    (!$options['enrol'] && !$options['users'] && !$options['oauth2'] && !$options['all'] && empty($options['case']))) {
+    (!$options['enrol'] && !$options['users'] && !$options['oauth2'] && !$options['all'] && empty($options['case']))
+) {
     $help = "Check what would be cleaned by bulk cleaning tasks.
 
 Options:
