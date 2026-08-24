@@ -114,7 +114,7 @@ class oauth2 {
     public static function get_deleted_users(): array {
         global $DB;
 
-        $sql = "SELECT u.id, u.email
+        $sql = "SELECT u.id, u.email AS useremail, l.email AS oauth2email
                 FROM {user} u
                 INNER JOIN {auth_oauth2_linked_login} l ON u.id = l.userid
                 WHERE u.deleted = 1";
@@ -130,7 +130,7 @@ class oauth2 {
     public static function get_suspended_users(): array {
         global $DB;
 
-        $sql = "SELECT u.id, u.email
+        $sql = "SELECT u.id AS userid, u.email AS useremail, l.email AS oauth2email
                 FROM {user} u
                 INNER JOIN {auth_oauth2_linked_login} l ON u.id = l.userid
                 WHERE u.suspended = 1";
