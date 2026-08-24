@@ -24,6 +24,7 @@
 
 use tool_bulkcleaning\local\cleaners\enrol as cleaner_enrol;
 use tool_bulkcleaning\local\cleaners\users as cleaner_users;
+use tool_bulkcleaning\local\cleaners\oauth2 as cleaner_oauth2;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -119,6 +120,40 @@ if ($hassiteconfig) {
         ));
 
         $settings->add($page);
+
+        // OAuth2 cleaning tab.
+        $page = new admin_settingpage(
+            'tool_bulkcleaning_oauth2',
+            new lang_string('tab_oauth2cleaning', 'tool_bulkcleaning')
+        );
+
+        $page->add(new admin_setting_configcheckbox(
+            'tool_bulkcleaning/oauth2cleaning_enabled',
+            new lang_string('oauth2cleaning_enabled', 'tool_bulkcleaning'),
+            new lang_string('oauth2cleaning_enabled_desc', 'tool_bulkcleaning'),
+            0
+        ));
+
+        $page->add(new admin_setting_configmulticheckbox(
+            'tool_bulkcleaning/oauth2cleaning_cases',
+            new lang_string('oauth2cleaning_cases', 'tool_bulkcleaning'),
+            new lang_string('oauth2cleaning_cases_desc', 'tool_bulkcleaning'),
+            [],
+            [
+                cleaner_oauth2::CASE_DELETEDUSERS => new lang_string('oauth2cleaning_case_deletedusers', 'tool_bulkcleaning'),
+                cleaner_oauth2::CASE_SUSPENDEDUSERS => new lang_string('oauth2cleaning_case_suspendedusers', 'tool_bulkcleaning'),
+                cleaner_oauth2::CASE_EMAILNOTMATCH => new lang_string('oauth2cleaning_case_emailnotmatch', 'tool_bulkcleaning'),
+            ]
+        ));
+
+        $page->add(new admin_setting_configcheckbox(
+            'tool_bulkcleaning/oauth2cleaning_observer',
+            new lang_string('oauth2cleaning_observer', 'tool_bulkcleaning'),
+            new lang_string('oauth2cleaning_observer_desc', 'tool_bulkcleaning'),
+            0
+        ));
+
+        $settings->add($page);
     }
 
     // Register report pages under Site Administration > Reports.
@@ -133,6 +168,13 @@ if ($hassiteconfig) {
         'tool_bulkcleaning_report_users',
         new lang_string('report_users_title', 'tool_bulkcleaning'),
         new moodle_url('/admin/tool/bulkcleaning/report_users.php'),
+        'moodle/site:viewreports'
+    ));
+
+    $ADMIN->add('reports', new admin_externalpage(
+        'tool_bulkcleaning_report_oauth2',
+        new lang_string('report_oauth2_title', 'tool_bulkcleaning'),
+        new moodle_url('/admin/tool/bulkcleaning/report_oauth2.php'),
         'moodle/site:viewreports'
     ));
 }

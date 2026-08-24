@@ -15,18 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for Bulk cleaning
+ * OAuth2 cleaning log report page.
  *
  * @package    tool_bulkcleaning
  * @copyright  2026 David Herney @ BambuCo
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-$plugin->component = 'tool_bulkcleaning';
-$plugin->release = '1.1.00';
-$plugin->version = 2026031704;
-$plugin->requires = 2024100700;
-$plugin->supported = [405, 501];
-$plugin->maturity = MATURITY_STABLE;
+admin_externalpage_setup('tool_bulkcleaning_report_oauth2');
+
+echo $OUTPUT->header();
+
+echo $OUTPUT->heading(get_string('report_oauth2_title', 'tool_bulkcleaning'));
+
+$report = \core_reportbuilder\system_report_factory::create(
+    \tool_bulkcleaning\reportbuilder\local\systemreports\oauth2_cleaning_report::class,
+    context_system::instance()
+);
+echo $report->output();
+
+echo $OUTPUT->footer();

@@ -15,18 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for Bulk cleaning
+ * Event observers for Bulk cleaning
  *
  * @package    tool_bulkcleaning
+ * @category   event
  * @copyright  2026 David Herney @ BambuCo
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_bulkcleaning';
-$plugin->release = '1.1.00';
-$plugin->version = 2026031704;
-$plugin->requires = 2024100700;
-$plugin->supported = [405, 501];
-$plugin->maturity = MATURITY_STABLE;
+$observers = [
+    [
+        'eventname' => \core\event\user_updated::class,
+        'callback' => 'tool_bulkcleaning\local\observer::user_updated',
+    ],
+    [
+        'eventname' => \core\event\user_deleted::class,
+        'callback' => 'tool_bulkcleaning\local\observer::user_deleted',
+    ],
+];

@@ -43,4 +43,13 @@ $tasks = [
         'dayofweek' => '*',
         'month' => '*',
     ],
+    [
+        'classname' => 'tool_bulkcleaning\task\oauth2_cleaning',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '5',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ]
 ];

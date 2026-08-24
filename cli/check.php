@@ -28,12 +28,16 @@ require_once($CFG->libdir . '/clilib.php');
 
 use tool_bulkcleaning\local\cleaners\enrol;
 use tool_bulkcleaning\local\cleaners\users;
+use tool_bulkcleaning\local\cleaners\oauth2;
 
 $allcases = implode(', ', [
     enrol::CASE_DELETEDUSERS,
     enrol::CASE_SUSPENDEDUSERS,
     enrol::CASE_EXPIREDENROLS,
     users::CASE_NOLOGIN,
+    oauth2::CASE_DELETEDUSERS,
+    oauth2::CASE_SUSPENDEDUSERS,
+    oauth2::CASE_EMAILNOTMATCH,
 ]);
 
 [$options, $unrecognized] = cli_get_params(
@@ -67,6 +71,7 @@ Options:
 -h, --help          Print out this help
 -e, --enrol         Show enrolment cleaning data
 -u, --users         Show users cleaning data
+-o, --oauth2        Show OAuth2 cleaning data
 -a, --all           Show all cleaning data
 -c, --csv           Export data as CSV instead of counts
 -s, --case=CASE     Filter by a specific case: {$allcases}
@@ -86,9 +91,11 @@ $casefilter = $options['case'];
 // Map cases to their group.
 $enrolcases = [enrol::CASE_DELETEDUSERS, enrol::CASE_SUSPENDEDUSERS, enrol::CASE_EXPIREDENROLS];
 $userscases = [users::CASE_NOLOGIN];
+$oauth2cases = [oauth2::CASE_DELETEDUSERS, oauth2::CASE_SUSPENDEDUSERS, oauth2::CASE_EMAILNOTMATCH];
 
 $showenrol = $options['enrol'] || $options['all'];
 $showusers = $options['users'] || $options['all'];
+$showoauth2 = $options['oauth2'] || $options['all'];
 
 if (!empty($casefilter)) {
     if (in_array($casefilter, $enrolcases)) {
@@ -106,6 +113,10 @@ if ($showenrol) {
 
 if ($showusers) {
     check_users($csv, $casefilter);
+}
+
+if ($showoauth2) {
+    check_oauth2($csv, $casefilter);
 }
 
 /**
@@ -197,4 +208,52 @@ function check_users(bool $csv, string $casefilter): void {
 
     $count = count(users::get_nologin_users());
     echo "  " . users::CASE_NOLOGIN . ": $count users\n\n";
+}
+
+/**
+ * Check OAuth2 cleaning data.
+ *
+ * @param bool $csv
+ * @param string $casefilter
+ */
+function check_oauth2(bool $csv, string $casefilter): void {
+    $cases = [
+        oauth2::CASE_DELETEDUSERS => 'get_deleted_users',
+        oauth2::CASE_SUSPENDEDUSERS => 'get_suspended_users',
+        oauth2::CASE_EMAILNOTMATCH => 'get_email_not_match_users',
+    ];
+
+    if (!empty($casefilter)) {
+        if (!isset($cases[$casefilter])) {
+            return;
+        }
+        $cases = [$casefilter => $cases[$casefilter]];
+    }
+
+    if ($csv) {
+        $fp = fopen('php://stdout', 'w');
+        fputcsv($fp, ['case', 'userid', 'useremail', 'oauth2email']);
+
+        foreach ($cases as $case => $method) {
+            $users = oauth2::$method();
+            foreach ($users as $u) {
+                fputcsv($fp, [$case, $u->userid, $u->useremail, $u->oauth2email]);
+            }
+        }
+
+        fclose($fp);
+        return;
+    }
+
+    cli_heading('OAuth2 cleaning');
+
+    $enabled = get_config('tool_bulkcleaning', 'oauth2cleaning_enabled');
+    echo "Status: " . ($enabled ? 'Enabled' : 'Disabled') . "\n\n";
+
+    foreach ($cases as $case => $method) {
+        $count = count(oauth2::$method());
+        echo "  $case: $count users\n";
+    }
+
+    echo "\n";
 }

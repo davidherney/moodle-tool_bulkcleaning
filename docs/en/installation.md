@@ -19,6 +19,7 @@ The settings are organized in two tabs:
 
 - **Enrolments cleaning:** Enable/disable, select cleaning cases and choose user filter.
 - **Users cleaning:** Enable/disable, select cleaning cases, choose the action and configure the inactivity days.
+- **OAuth2 cleaning:** Enable/disable, select cleaning cases and enable/disable the observer.
 
 ## Scheduled tasks
 
@@ -28,6 +29,7 @@ The plugin registers two scheduled tasks:
 |---|---|
 | Enrolments cleaning | Daily at 3:00 AM |
 | Users cleaning | Daily at 4:00 AM |
+| OAuth2 cleaning | Daily at 5:00 AM |
 
 Tasks only process data if they are enabled in the configuration.
 

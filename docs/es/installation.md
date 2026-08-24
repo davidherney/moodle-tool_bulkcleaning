@@ -19,6 +19,7 @@ Los ajustes están organizados en dos pestañas:
 
 - **Limpieza de matrículas:** Habilitar/deshabilitar, seleccionar casos de limpieza y elegir filtro de usuarios.
 - **Limpieza de usuarios:** Habilitar/deshabilitar, seleccionar casos de limpieza, elegir la acción y configurar los días de inactividad.
+- **Limpieza de OAuth2:** Habilitar/deshabilitar, seleccionar casos de limpieza y habilitar/deshabilitar el observador.
 
 ## Tareas programadas
 
@@ -28,6 +29,7 @@ El plugin registra dos tareas programadas:
 |---|---|
 | Limpieza de matrículas | Todos los días a las 3:00 AM |
 | Limpieza de usuarios | Todos los días a las 4:00 AM |
+| Limpieza de OAuth2 | Todos los días a las 5:00 AM |
 
 Las tareas solo procesan datos si están habilitadas en la configuración.
 

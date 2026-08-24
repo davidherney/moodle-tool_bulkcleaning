@@ -6,5 +6,6 @@ Plugin para automatizar la limpieza de datos en la plataforma mediante tareas pr
 
 - [Instalación y configuración](installation.md)
 - [Limpieza de matrículas](enrol-cleaning.md)
+- [Limpieza de OAuth2](oauth2-cleaning.md)
 - [Limpieza de usuarios](users-cleaning.md)
 - [Comando CLI](cli.md)
